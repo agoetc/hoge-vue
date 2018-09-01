@@ -10,12 +10,14 @@
     <tr>
       <th>id</th>
       <th>Todo</th>
+      <th>delete</th>
     </tr>
     </thead>
     <tbody>
-    <tr v-for="todo of todos" :key="todo.id">
+    <tr :todos="todos" v-for="(todo, index) of todos" :key="todo.id">
       <th scope="row">{{ todo.id }}</th>
       <td>{{ todo.text }}</td>
+      <td><a v-on:click="deleteTodo(todo.id, index)">[x]</a></td>
     </tr>
     </tbody>
   </table>
@@ -36,11 +38,13 @@ export default {
   mounted () {
     axios
       .get('http://localhost:3000/todos')
-      .then(response => { this.todos = response.data })
+      .then(response => {
+        this.todos = response.data
+      })
       .catch(error => window.alert(error))
   },
   methods: {
-    addTodo: function () {
+    addTodo: function (id) {
       if (this.todoText.length > 0) {
         axios.post('http://localhost:3000/todos', {
           text: this.todoText
@@ -51,6 +55,13 @@ export default {
           })
         })
       }
+    },
+    deleteTodo: function (id, index) {
+      axios.delete('http://localhost:3000/todos/' + id)
+        .then(response => {
+          this.todos.splice(index, 1)
+          console.log(this.todos)
+        })
     }
   }
 }
